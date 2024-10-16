@@ -118,6 +118,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            loadNamesFromFile();
             const wheelSvg = document.getElementById('wheel-svg');
             const nameInput = document.getElementById('nameInput');
             const addNameBtn = document.getElementById('addName');
@@ -148,6 +149,18 @@
                     updateWheel();
                 }
             }
+
+            function loadNamesFromFile() {
+    fetch('name.txt')
+        .then(response => response.text())
+        .then(data => {
+            // Split the names by comma and trim spaces and quotes
+            names = data.split(',').map(name => name.trim().replace(/['"]/g, ''));
+            updateWheel();
+        })
+        .catch(error => console.error('Error loading names:', error));
+}
+
 
             function updateWheel() {
                 wheelSvg.innerHTML = '';
