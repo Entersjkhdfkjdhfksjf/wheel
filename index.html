@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel Picker</title>
+    <title>Redesigned Wheel Picker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -117,8 +117,20 @@
             const toggleDarkModeBtn = document.getElementById('toggleDarkMode');
 
             let names = [];
-            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F9ED69', '#F08A5D', '#B83B5E', '#6A2C70', '#08D9D6'];
+            //const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F9ED69', '#F08A5D', '#B83B5E', '#6A2C70', '#08D9D6'];
+            const colors = []; // Declare colors as a constant array
 
+            function getRandomColor() {
+    // Generate a random hex color
+            return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+            }
+
+// Generate 5 random colors and add them to the colors array
+            for (let i = 0; i < 99999; i++) {
+                colors.push(getRandomColor()); // Add the random color to the array
+            }
+
+            console.log(colors);
             function addName() {
                 const name = nameInput.value.trim();
                 if (name && !names.includes(name)) {
@@ -168,7 +180,7 @@
                 spinWheelBtn.disabled = true;
                 setTimeout(() => {
                     const winningIndex = Math.floor(names.length - (randomDegrees % 360) / (360 / names.length)) % names.length;
-                    result.textContent = `Winner: ${names[winningIndex]}`;
+                    result.textContent = `The Winner is: ${names[winningIndex]}!!!`;
                     spinWheelBtn.disabled = false;
                 }, 5000);
             }
