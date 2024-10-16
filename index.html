@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel Picker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .content {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        .slice {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            transform-origin: center left;
+            transition: filter 0.3s;
+        }
+        .slice span {
+            padding-right: 50px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            color: white;
+        }
+        #triangle {
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid var(--bs-body-color);
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        #spinButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--bs-primary);
+            color: white;
+            border: none;
+            font-weight: bold;
+            z-index: 20;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #spinButton:hover {
+            background-color: var(--bs-primary-dark);
+        }
+        #spinButton:disabled {
+            background-color: var(--bs-secondary);
+            cursor: not-allowed;
+        }
+        .navbar {
+            background-color: rgba(var(--bs-dark-rgb), 0.8) !important;
+        }
+        .form-check-input:checked {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Wheel Picker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="resetNav">Reset</a>
+                    </li>
+                </ul>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                    <label class="form-check-label text-light" for="darkModeSwitch">Dark Mode</label>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="wheel-container mx-auto mb-4">
+                        <div id="triangle"></div>
+                        <div id="wheel"></div>
+                        <button id="spinButton" class="btn btn-primary">SPIN</button>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="text" id="nameInput" class="form-control" placeholder="Enter a name">
+                        <button id="addName" class="btn btn-primary">Add Name</button>
+                    </div>
+                    <div id="result" class="alert alert-info mt-3" role="alert" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const wheel = document.getElementById('wheel');
+        const nameInput = document.getElementById('nameInput');
+        const addNameBtn = document.getElementById('addName');
+        const spinBtn = document.getElementById('spinButton');
+        const resetNav = document.getElementById('resetNav');
+        const result = document.getElementById('result');
+        const darkModeSwitch = document.getElementById('darkModeSwitch');
+
+        let names = [];
+        let colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F9ED69', '#F08A5D', '#B83B5E', '#6A2C70', '#08D9D6'];
+
+        function addName() {
+            const name = nameInput.value.trim();
+            if (name && !names.includes(name)) {
+                names.push(name);
+                nameInput.value = '';
+                updateWheel();
+                updateButtons();
+            }
+        }
+
+        function updateWheel() {
+            wheel.innerHTML = '';
+            const sliceAngle = 360 / names.length;
+            names.forEach((name, index) => {
+                const slice = document.createElement('div');
+                slice.className = 'slice';
+                slice.style.transform = `rotate(${index * sliceAngle}deg)`;
+                slice.style.backgroundColor = colors[index % colors.length];
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = name;
+                slice.appendChild(nameSpan);
+                wheel.appendChild(slice);
+            });
+        }
+
+        function spinWheel() {
+            if (names.length < 2) return;
+            const randomDegrees = Math.floor(Math.random() * 360) + 720; // At least 2 full spins
+            wheel.style.transform = `rotate(${randomDegrees}deg)`;
+            spinBtn.disabled = true;
+            setTimeout(() => {
+                const winningIndex = Math.floor(names.length - (randomDegrees % 360) / (360 / names.length)) % names.length;
+                result.textContent = `Winner: ${names[winningIndex]}`;
+                result.style.display = 'block';
+                highlightWinner(winningIndex);
+                spinBtn.disabled = false;
+            }, 5000);
+        }
+
+        function highlightWinner(index) {
+            const slices = wheel.getElementsByClassName('slice');
+            for (let i = 0; i < slices.length; i++) {
+                if (i === index) {
+                    slices[i].style.filter = 'brightness(1.2)';
+                } else {
+                    slices[i].style.filter = 'brightness(0.8)';
+                }
+            }
+        }
+
+        function resetWheel() {
+            names = [];
+            updateWheel();
+            result.textContent = '';
+            result.style.display = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            updateButtons();
+        }
+
+        function updateButtons() {
+            spinBtn.disabled = names.length < 2;
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.setAttribute('data-bs-theme', darkModeSwitch.checked ? 'dark' : 'light');
+        }
+
+        addNameBtn.addEventListener('click', addName);
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addName();
+        });
+        spinBtn.addEventListener('click', spinWheel);
+        resetNav.addEventListener('click', resetWheel);
+        darkModeSwitch.addEventListener('change', toggleDarkMode);
+
+        updateButtons();
+    </script>
+</body>
+</html>
