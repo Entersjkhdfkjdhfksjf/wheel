@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wheel Picker</title>
+    <title>Redesigned Wheel Picker</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @keyframes spin {
@@ -12,7 +12,7 @@
         }
 
         .spinning {
-            animation: spin 5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+            animation: spin 4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; /* Change duration here for speed */
         }
 
         body {
@@ -30,27 +30,27 @@
             align-items: center;
         }
         #wheel {
-            width: 300px;
-            height: 300px;
+            width: 500px;
+            height: 500px;
             margin: 20px auto;
             position: relative;
         }
         #wheel-svg {
             transform-origin: center;
-            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         #spinWheel {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background-color: #007bff;
             color: white;
             border: none;
-            font-size: 16px;
+            font-size: 18px;
             cursor: pointer;
             z-index: 10;
         }
@@ -61,14 +61,14 @@
             transform: translate(-100%, -50%) rotate(90deg);
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid rgba(111, 236, 250, 0); /* Changed to use rgba for transparency */
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid rgba(111, 236, 250, 0);
             z-index: 20;
         }
         #result {
             margin-top: 20px;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: bold;
         }
         .dark-mode {
@@ -121,8 +121,8 @@
 
     <div class="container">
         <div id="wheel">
-            <svg id="wheel-svg" width="300" height="300" viewBox="0 0 300 300">
-                <circle cx="150" cy="150" r="150" fill="#ddd"/>
+            <svg id="wheel-svg" width="500" height="500" viewBox="0 0 500 500">
+                <circle cx="250" cy="250" r="250" fill="#ddd"/>
             </svg>
             <button id="spinWheel" class="btn btn-primary">Spin</button>
             <div id="indicator"></div>
@@ -148,7 +148,7 @@
             const removeWinnerBtn = document.getElementById('removeWinner');
             const fileInput = document.getElementById('fileInput');
 
-            let names = ['one', 'two', 'three', 'test'];
+            let names = ['one', 'two', 'three', 'four']; // Default names
             const colors = [];
 
             function getRandomColor() {
@@ -176,21 +176,21 @@
                     const endAngle = (index + 1) * sliceAngle;
                     const largeArcFlag = sliceAngle <= 180 ? 0 : 1;
                     
-                    const startX = 150 + 150 * Math.cos(startAngle * Math.PI / 180);
-                    const startY = 150 + 150 * Math.sin(startAngle * Math.PI / 180);
-                    const endX = 150 + 150 * Math.cos(endAngle * Math.PI / 180);
-                    const endY = 150 + 150 * Math.sin(endAngle * Math.PI / 180);
+                    const startX = 250 + 250 * Math.cos(startAngle * Math.PI / 180);
+                    const startY = 250 + 250 * Math.sin(startAngle * Math.PI / 180);
+                    const endX = 250 + 250 * Math.cos(endAngle * Math.PI / 180);
+                    const endY = 250 + 250 * Math.sin(endAngle * Math.PI / 180);
 
                     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    path.setAttribute('d', `M150,150 L${startX},${startY} A150,150 0 ${largeArcFlag},1 ${endX},${endY} Z`);
+                    path.setAttribute('d', `M250,250 L${startX},${startY} A250,250 0 ${largeArcFlag},1 ${endX},${endY} Z`);
                     path.setAttribute('fill', colors[index % colors.length]);
 
                     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    text.setAttribute('x', 150 + 70 * Math.cos((startAngle + sliceAngle / 2) * Math.PI / 180));
-                    text.setAttribute('y', 150 + 70 * Math.sin((startAngle + sliceAngle / 2) * Math.PI / 180));
+                    text.setAttribute('x', 250 + 120 * Math.cos((startAngle + sliceAngle / 2) * Math.PI / 180));
+                    text.setAttribute('y', 250 + 120 * Math.sin((startAngle + sliceAngle / 2) * Math.PI / 180));
                     text.setAttribute('text-anchor', 'middle');
                     text.setAttribute('fill', 'white');
-                    text.setAttribute('font-size', '12px');
+                    text.setAttribute('font-size', '28px'); // Change font size here
                     text.setAttribute('transform', `rotate(${startAngle + sliceAngle / 2}, ${text.getAttribute('x')}, ${text.getAttribute('y')})`);
                     text.textContent = name;
 
@@ -204,14 +204,19 @@
             function spinWheel() {
                 if (names.length < 2) return;
 
-                const randomDegrees = Math.floor(Math.random() * 360) + 720;
+                const randomDegrees = Math.floor(Math.random() * 360) + 5400; // 5400 for 15 rotations
 
                 wheelSvg.style.transform = `rotate(0deg)`;
 
                 wheelSvg.classList.add('spinning');
 
                 setTimeout(() => {
-                    const winningIndex = Math.floor(names.length - (randomDegrees % 360) / (360 / names.length)) % names.length;
+                    let winningIndex = Math.floor(names.length - (randomDegrees % 360) / (360 / names.length)) % names.length;
+
+                    // Introduce randomness by adding a random offset
+                    const randomOffset = Math.floor(Math.random() * names.length);
+                    winningIndex = (winningIndex + randomOffset) % names.length; // Adjust the winning index
+
                     const winnerName = names[winningIndex];
                     result.textContent = `Winner: ${winnerName}`;
 
@@ -226,7 +231,7 @@
                         removeWinnerBtn.style.display = 'none';
                         updateWheel();
                     };
-                }, 5000); 
+                }, 4000); // Match duration of the spinning animation
             }
 
             function resetWheel() {
@@ -246,7 +251,6 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const content = e.target.result;
-                        // Parse the content according to the new format
                         names = content.match(/"([^"]*)"/g).map(name => name.replace(/"/g, '').trim());
                         updateWheel();
                     };
