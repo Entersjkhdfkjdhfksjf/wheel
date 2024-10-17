@@ -7,19 +7,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.spinning {
-    animation: spin 5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
-}
+        .spinning {
+            animation: spin 5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
 
         body {
             font-family: Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
             flex-grow: 1;
@@ -55,14 +56,14 @@
         }
         #indicator {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 100%;
             transform: translate(-100%, -50%) rotate(90deg);
             width: 0;
             height: 0;
             border-left: 15px solid transparent;
             border-right: 15px solid transparent;
-            border-top: 30px solid #6fecfa;
+            border-top: 30px solid rgba(111, 236, 250, 0); /* Changed to use rgba for transparency */
             z-index: 20;
         }
         #result {
@@ -76,6 +77,21 @@
         }
         .dark-mode .navbar {
             background-color: #222 !important;
+        }
+        .dark-mode .navbar-light .navbar-nav .nav-link {
+            color: #fff;
+        }
+        .dark-mode .navbar-light .navbar-brand {
+            color: #fff;
+        }
+        .dark-mode .btn-outline-secondary {
+            color: #fff;
+            border-color: #fff;
+        }
+        .dark-mode .form-control {
+            background-color: #444;
+            color: #fff;
+            border-color: #555;
         }
     </style>
 </head>
@@ -93,6 +109,10 @@
                     </li>
                     <li class="nav-item">
                         <button class="nav-link btn btn-link" id="toggleDarkMode">Toggle Dark Mode</button>
+                    </li>
+                    <li class="nav-item">
+                        <label for="fileInput" class="nav-link btn btn-link">Upload Names</label>
+                        <input type="file" id="fileInput" style="display: none;" accept=".txt">
                     </li>
                 </ul>
             </div>
@@ -118,7 +138,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            loadNamesFromFile();
             const wheelSvg = document.getElementById('wheel-svg');
             const nameInput = document.getElementById('nameInput');
             const addNameBtn = document.getElementById('addName');
@@ -127,6 +146,7 @@
             const resetWheelBtn = document.getElementById('resetWheel');
             const toggleDarkModeBtn = document.getElementById('toggleDarkMode');
             const removeWinnerBtn = document.getElementById('removeWinner');
+            const fileInput = document.getElementById('fileInput');
 
             let names = ['one', 'two', 'three', 'test'];
             const colors = [];
@@ -139,8 +159,6 @@
                 colors.push(getRandomColor());
             }
 
-            console.log(colors);
-
             function addName() {
                 const name = nameInput.value.trim();
                 if (name && !names.includes(name)) {
@@ -149,18 +167,6 @@
                     updateWheel();
                 }
             }
-
-            function loadNamesFromFile() {
-    fetch('name.txt')
-        .then(response => response.text())
-        .then(data => {
-            // Split the names by comma and trim spaces and quotes
-            names = data.split(',').map(name => name.trim().replace(/['"]/g, ''));
-            updateWheel();
-        })
-        .catch(error => console.error('Error loading names:', error));
-}
-
 
             function updateWheel() {
                 wheelSvg.innerHTML = '';
@@ -196,35 +202,32 @@
             }
 
             function spinWheel() {
-    if (names.length < 2) return;
+                if (names.length < 2) return;
 
-    const randomDegrees = Math.floor(Math.random() * 360) + 720;
+                const randomDegrees = Math.floor(Math.random() * 360) + 720;
 
-    wheelSvg.style.transform = `rotate(0deg)`;
+                wheelSvg.style.transform = `rotate(0deg)`;
 
-    wheelSvg.classList.add('spinning');
+                wheelSvg.classList.add('spinning');
 
-    setTimeout(() => {
-        const winningIndex = Math.floor(names.length - (randomDegrees % 360) / (360 / names.length)) % names.length;
-        const winnerName = names[winningIndex];
-        result.textContent = `Winner: ${winnerName}`;
+                setTimeout(() => {
+                    const winningIndex = Math.floor(names.length - (randomDegrees % 360) / (360 / names.length)) % names.length;
+                    const winnerName = names[winningIndex];
+                    result.textContent = `Winner: ${winnerName}`;
 
-        removeWinnerBtn.style.display = 'block';
-        spinWheelBtn.disabled = false;
+                    removeWinnerBtn.style.display = 'block';
+                    spinWheelBtn.disabled = false;
 
-        // Reset and remove the spinning class
-        wheelSvg.classList.remove('spinning');
+                    wheelSvg.classList.remove('spinning');
 
-        removeWinnerBtn.onclick = function() {
-            names.splice(winningIndex, 1);
-            result.textContent = '';
-            removeWinnerBtn.style.display = 'none';
-            updateWheel();
-        };
-    }, 5000); 
-}
-
-
+                    removeWinnerBtn.onclick = function() {
+                        names.splice(winningIndex, 1);
+                        result.textContent = '';
+                        removeWinnerBtn.style.display = 'none';
+                        updateWheel();
+                    };
+                }, 5000); 
+            }
 
             function resetWheel() {
                 names = [];
@@ -237,6 +240,20 @@
                 document.body.classList.toggle('dark-mode');
             }
 
+            function handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const content = e.target.result;
+                        // Parse the content according to the new format
+                        names = content.match(/"([^"]*)"/g).map(name => name.replace(/"/g, '').trim());
+                        updateWheel();
+                    };
+                    reader.readAsText(file);
+                }
+            }
+
             addNameBtn.addEventListener('click', addName);
             nameInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') addName();
@@ -244,6 +261,7 @@
             spinWheelBtn.addEventListener('click', spinWheel);
             resetWheelBtn.addEventListener('click', resetWheel);
             toggleDarkModeBtn.addEventListener('click', toggleDarkMode);
+            fileInput.addEventListener('change', handleFileUpload);
 
             updateWheel();
         });
