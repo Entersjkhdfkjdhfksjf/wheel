@@ -8,11 +8,11 @@
     <style>
         @keyframes spin {
             0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            100% { transform: rotate(3600deg); } /* Increased rotation for more spins */
         }
 
         .spinning {
-            animation: spin 4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; /* Change duration here for speed */
+            animation: spin 10s cubic-bezier(0.25, 0.1, 0.25, 1) forwards; /* Increased duration for slower stop */
         }
 
         body {
@@ -37,7 +37,7 @@
         }
         #wheel-svg {
             transform-origin: center;
-            transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform 10s cubic-bezier(0.25, 0.1, 0.25, 1); /* Increased duration for slower stop */
         }
         #spinWheel {
             position: absolute;
@@ -47,7 +47,7 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background-color: #007bff;
+            background-color: #007bff71;
             color: white;
             border: none;
             font-size: 18px;
@@ -93,6 +93,9 @@
             color: #fff;
             border-color: #555;
         }
+        .input-group {
+            margin-top: 20px; /* Added padding between wheel and text box */
+        }
     </style>
 </head>
 <body>
@@ -132,7 +135,7 @@
             <button class="btn btn-outline-secondary" type="button" id="addName">Add Name</button>
         </div>
         <div id="result"></div>
-        <button id="removeWinner" class="btn btn-danger" style="display: none;">Remove Winner</button>
+        <button id="removeWinner" class="btn btn-danger" style="display: none;">Remove Name</button>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
@@ -190,7 +193,7 @@
                     text.setAttribute('y', 250 + 120 * Math.sin((startAngle + sliceAngle / 2) * Math.PI / 180));
                     text.setAttribute('text-anchor', 'middle');
                     text.setAttribute('fill', 'white');
-                    text.setAttribute('font-size', '28px'); // Change font size here
+                    text.setAttribute('font-size', '28px');
                     text.setAttribute('transform', `rotate(${startAngle + sliceAngle / 2}, ${text.getAttribute('x')}, ${text.getAttribute('y')})`);
                     text.textContent = name;
 
@@ -204,7 +207,7 @@
             function spinWheel() {
                 if (names.length < 2) return;
 
-                const randomDegrees = Math.floor(Math.random() * 360) + 5400; // 5400 for 15 rotations
+                const randomDegrees = Math.floor(Math.random() * 360) + 3600; // Increased to 10 rotations minimum
 
                 wheelSvg.style.transform = `rotate(0deg)`;
 
@@ -218,7 +221,7 @@
                     winningIndex = (winningIndex + randomOffset) % names.length; // Adjust the winning index
 
                     const winnerName = names[winningIndex];
-                    result.textContent = `Winner: ${winnerName}`;
+                    result.textContent = `It's your turn: ${winnerName} !!`; // Updated winner text
 
                     removeWinnerBtn.style.display = 'block';
                     spinWheelBtn.disabled = false;
@@ -231,7 +234,7 @@
                         removeWinnerBtn.style.display = 'none';
                         updateWheel();
                     };
-                }, 4000); // Match duration of the spinning animation
+                }, 10000); // Increased to match the new spin duration
             }
 
             function resetWheel() {
